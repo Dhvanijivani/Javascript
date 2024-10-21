@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Form</h1>
+    <input type="text" id="name" placeholder="Name">
+    <input type="email" id="email" placeholder="Email">
+    <input type="text" id="phone" placeholder="Phone Number">
+    <button onclick="addRecord()">Add Record</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+            </tr>
+        </thead>
+        <tbody id="recordTable">
+        </tbody>
+    </table>
+
+    <script>
+
+
+
+
+        // Function to retrieve records from local storage
+        function getRecords() {
+            const records = localStorage.getItem('records');
+            return records ? JSON.parse(records) : [];
+        }
+
+        // Function to display records in the table
+        function displayRecords() {
+            const records = getRecords();
+            const tableBody = document.getElementById('recordTable');
+            tableBody.innerHTML = '';
+
+            records.forEach((record, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+            <td>${record.name}</td>
+            <td>${record.email}</td>
+            <td>${record.phone}</td>
+            <td>
+                <button onclick="editRecord(${index})">Edit</button>
+                <button onclick="deleteRecord(${index})">Delete</button>
+            </td>
+        `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to add a record
+        function addRecord() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+
+            if (!name || !email || !phone) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const records = getRecords();
+            records.push({ name, email, phone });
+            localStorage.setItem('records', JSON.stringify(records));
+            displayRecords();
+            clearInputs();
+        }
+
+        // Function to edit a record
+        function editRecord(index) {
+            const records = getRecords();
+            const record = records[index];
+            document.getElementById('name').value = record.name;
+            document.getElementById('email').value = record.email;
+            document.getElementById('phone').value = record.phone;
+
+            // Update the button functionality
+            const addButton = document.querySelector('button');
+            addButton.onclick = function () {
+                updateRecord(index);
+            };
+        }
+
+        // Function to update a record
+        function updateRecord(index) {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+
+            const records = getRecords();
+            records[index] = { name, email, phone };
+            localStorage.setItem('records', JSON.stringify(records));
+            displayRecords();
+            clearInputs();
+
+            // Reset the button functionality
+            const addButton = document.querySelector('button');
+            addButton.onclick = addRecord;
+        }
+
+        // Function to delete a record
+        function deleteRecord(index) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                const records = getRecords();
+                records.splice(index, 1);
+                localStorage.setItem('records', JSON.stringify(records));
+                displayRecords();
+            }
+        }
+
+        // Function to clear input fields
+        function clearInputs() {
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+        }
+
+        // Initial display of records
+        displayRecords();
+
+    </script>
+</body>
+
+</html>
